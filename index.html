@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enigma Runic</title>
+    <title>Zky's Enigma</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,13 +17,13 @@
         .font-cinzel {
             font-family: 'Cinzel', serif;
         }
-        .rune {
+        .simbol {
             transition: transform 0.2s ease, box-shadow 0.2s ease;
             cursor: pointer;
             border: 2px solid #5a677d;
-            flex-shrink: 0; /* Mencegah rune menyusut */
+            flex-shrink: 0; /* Mencegah simbol menyusut */
         }
-        .rune:hover {
+        .simbol:hover {
             transform: scale(1.1);
             border-color: #f7b733;
             box-shadow: 0 0 15px #f7b733;
@@ -32,10 +32,6 @@
             border: 2px dashed #4a5568;
             background-color: rgba(0, 0, 0, 0.2);
             flex-shrink: 0; /* Mencegah slot menyusut */
-        }
-        .feedback-peg {
-            transition: transform 0.3s ease;
-            flex-shrink: 0;
         }
         .history-row {
             border-bottom: 1px solid #3a475d;
@@ -68,8 +64,8 @@
 <body class="text-gray-200 flex items-center justify-center min-h-screen p-4">
 
     <div class="w-full max-w-2xl text-center">
-        <h1 class="text-5xl md:text-6xl font-cinzel font-bold mb-2" style="text-shadow: 0 0 10px #f7b733;">Enigma Runic</h1>
-        <p class="mb-4 text-lg text-gray-400">Pecahkan urutan 4 rune rahasia dalam 10 kesempatan.</p>
+        <h1 class="text-5xl md:text-6xl font-cinzel font-bold mb-2" style="text-shadow: 0 0 10px #f7b733;">Zky's Enigma</h1>
+        <p class="mb-4 text-lg text-gray-400">Pecahkan urutan 4 simbol rahasia dalam 10 kesempatan.</p>
         <button id="get-prophecy" class="mb-4 bg-teal-600 hover:bg-teal-500 text-white font-bold py-2 px-5 rounded-full text-sm transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-teal-400 disabled:bg-gray-600 disabled:cursor-not-allowed disabled:transform-none">Dengarkan Ramalan Oracle ✨</button>
 
         <div id="game-container" class="bg-gray-800 bg-opacity-50 p-6 rounded-2xl shadow-2xl border border-gray-700">
@@ -80,8 +76,8 @@
             </div>
 
             <div class="mb-6">
-                 <h2 class="text-xl font-cinzel mb-3">Pilih Rune</h2>
-                <div id="rune-selection-area" class="flex flex-wrap justify-center items-center -m-1 md:-m-2 p-4 bg-black bg-opacity-20 rounded-lg"></div>
+                 <h2 class="text-xl font-cinzel mb-3">Pilih Simbol</h2>
+                <div id="simbol-selection-area" class="flex flex-wrap justify-center items-center -m-1 md:-m-2 p-4 bg-black bg-opacity-20 rounded-lg"></div>
             </div>
             
             <div class="flex flex-wrap justify-center items-center button-wrapper">
@@ -137,7 +133,7 @@
         <div class="bg-gray-900 p-8 rounded-2xl shadow-2xl text-center border-2 border-orange-500 max-w-md w-full">
             <h2 class="text-3xl font-cinzel font-bold mb-4 text-orange-400">Ritual Pertanyaan</h2>
             <p class="mb-4 text-gray-300">Ajukan satu pertanyaan kepada Oracle. Ini akan mengorbankan 1 sisa percobaan.</p>
-            <input type="text" id="question-input" class="w-full bg-gray-700 text-white p-2 rounded-md mb-4 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="Contoh: Apakah Rune Api ada dalam kode?">
+            <input type="text" id="question-input" class="w-full bg-gray-700 text-white p-2 rounded-md mb-4 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="Contoh: Apakah Simbol Api ada dalam kode?">
             <div class="flex justify-center gap-4">
                 <button id="submit-question" class="bg-orange-600 hover:bg-orange-500 text-white font-bold py-2 px-6 rounded-lg">Tanya</button>
                 <button id="cancel-question" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-6 rounded-lg">Batal</button>
@@ -147,15 +143,15 @@
 
     <script>
         // --- Konfigurasi Game ---
-        const RUNE_COUNT = 4;
+        const SIMBOL_COUNT = 4;
         const MAX_ATTEMPTS = 10;
-        const RUNES = [
-            { id: 1, name: "Segitiga Api", theme: "api, panas, kehancuran", svg: '<path d="M12 2 L22 22 L2 22 Z" stroke="currentColor" stroke-width="2" fill="none"/>', color: '#ff6b6b' },
-            { id: 2, name: "Lingkaran Air", theme: "air, ketenangan, kehidupan", svg: '<circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>', color: '#48dbfb' },
-            { id: 3, name: "Mata Angin", theme: "angin, kebebasan, perjalanan", svg: '<path d="M2 12 Q12 2 22 12 Q12 22 2 12 Z" stroke="currentColor" stroke-width="2" fill="none"/>', color: '#1dd1a1' },
-            { id: 4, name: "Berlian Tanah", theme: "tanah, kekuatan, kestabilan", svg: '<rect x="3" y="3" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" transform="rotate(45 12 12)"/>', color: '#feca57' },
-            { id: 5, name: "Simpul Petir", theme: "petir, energi, kecepatan", svg: '<path d="M2 2 L12 12 L2 22 M22 2 L12 12 L22 22" stroke="currentColor" stroke-width="2" fill="none"/>', color: '#ff9ff3' },
-            { id: 6, name: "Salib Roh", theme: "roh, keseimbangan, alam baka", svg: '<path d="M12 2 V22 M2 12 H22" stroke="currentColor" stroke-width="2" fill="none"/>', color: '#54a0ff' }
+        const SIMBOLS = [
+            { id: 1, name: "Simbol Malam", theme: "misteri, ilusi, malam", svg: '<path d="M12 2 A10 10 0 1 0 12 22 A8 8 0 1 1 12 2 Z" stroke="currentColor" stroke-width="2" fill="none"/>', color: '#FFFFFF' },
+            { id: 2, name: "Simbol Waktu", theme: "siklus, takdir, keabadian", svg: '<path d="M12,2 A10,10 0 0,1 22,12 A10,10 0 0,1 12,22 A10,10 0 0,1 2,12 A10,10 0 0,1 12,2" stroke="currentColor" stroke-width="1.5" fill="none" transform="rotate(90 12 12)"/><path d="M12,5 A7,7 0 0,1 19,12 A7,7 0 0,1 12,19 A7,7 0 0,1 5,12 A7,7 0 0,1 12,5" stroke="currentColor" stroke-width="1.5" fill="none" transform="rotate(-90 12 12)"/>', color: '#FFEB3B' },
+            { id: 3, name: "Simbol Alam", theme: "pertumbuhan, alam, kebijaksanaan", svg: '<path d="M12 22 V 10 M 12 10 L 6 4 M 12 10 L 18 4 M 12 15 L 8 9 M 12 15 L 16 9" stroke="currentColor" stroke-width="2" fill="none"/>', color: '#4CAF50' },
+            { id: 4, name: "Simbol Rahasia", theme: "pengetahuan, rahasia, pembukaan", svg: '<circle cx="8" cy="8" r="4" stroke="currentColor" stroke-width="2" fill="none"/><path d="M10 10 L 20 20 M 16 20 H 20 V 16" stroke="currentColor" stroke-width="2" fill="none"/>', color: '#FF9800' },
+            { id: 5, name: "Simbol Kekacauan", theme: "perubahan, emosi, kekacauan", svg: '<path d="M2 8 C 6 4, 8 12, 12 8 S 18 4, 22 8 M2 16 C 6 12, 8 20, 12 16 S 18 12, 22 16" stroke="currentColor" stroke-width="2" fill="none"/>', color: '#03A9F4' },
+            { id: 6, name: "Simbol Kehidupan", theme: "kehidupan, esensi, inti", svg: '<path d="M12 5 C 9 2, 4 4, 4 9 C 4 14, 12 22, 12 22 C 12 22, 20 14, 20 9 C 20 4, 15 2, 12 5 Z" stroke="currentColor" stroke-width="1.5" fill="none"/>', color: '#E91E63' }
         ];
 
         // --- Elemen DOM ---
@@ -178,7 +174,7 @@
         const getAnalysisBtn = document.getElementById('get-analysis');
         const geminiLoseFeatures = document.getElementById('gemini-lose-features');
         const currentGuessArea = document.getElementById('current-guess-area');
-        const runeSelectionArea = document.getElementById('rune-selection-area');
+        const simbolSelectionArea = document.getElementById('simbol-selection-area');
         const submitGuessBtn = document.getElementById('submit-guess');
         const clearGuessBtn = document.getElementById('clear-guess');
         const attemptsLeftEl = document.getElementById('attempts-left');
@@ -194,17 +190,16 @@
         let attempts = MAX_ATTEMPTS;
         let isGameOver = false;
 
-        function createRuneElement(rune, isInteractive = false) {
-            const runeEl = document.createElement('div');
-            let classes = 'rune w-12 h-12 md:w-14 md:h-14 bg-gray-700 rounded-lg flex items-center justify-center';
+        function createSimbolElement(simbol, isInteractive = false) {
+            const simbolEl = document.createElement('div');
+            let classes = 'simbol w-12 h-12 md:w-14 md:h-14 bg-gray-700 rounded-lg flex items-center justify-center';
             if(isInteractive) {
-                // Menambahkan margin untuk browser lama yang tidak mendukung 'gap'
                 classes += ' m-1 md:m-2';
             }
-            runeEl.className = classes;
-            runeEl.innerHTML = `<svg viewBox="0 0 24 24" width="28" height="28" style="color: ${rune.color};">${rune.svg}</svg>`;
-            if (isInteractive) runeEl.onclick = () => handleRuneSelection(rune);
-            return runeEl;
+            simbolEl.className = classes;
+            simbolEl.innerHTML = `<svg viewBox="0 0 24 24" width="28" height="28" style="color: ${simbol.color};">${simbol.svg}</svg>`;
+            if (isInteractive) simbolEl.onclick = () => handleSimbolSelection(simbol);
+            return simbolEl;
         }
 
         function initGame() {
@@ -214,16 +209,16 @@
             secretCode = [];
             historyData = [];
             
-            let availableRunes = [...RUNES];
-            for (let i = 0; i < RUNE_COUNT; i++) {
-                const randomIndex = Math.floor(Math.random() * availableRunes.length);
-                secretCode.push(availableRunes[randomIndex]);
-                availableRunes.splice(randomIndex, 1);
+            let availableSimbols = [...SIMBOLS];
+            for (let i = 0; i < SIMBOL_COUNT; i++) {
+                const randomIndex = Math.floor(Math.random() * availableSimbols.length);
+                secretCode.push(availableSimbols[randomIndex]);
+                availableSimbols.splice(randomIndex, 1);
             }
             console.log("Kode Rahasia (untuk debugging):", secretCode.map(r => r.name).join(', '));
 
-            runeSelectionArea.innerHTML = '';
-            RUNES.forEach(rune => runeSelectionArea.appendChild(createRuneElement(rune, true)));
+            simbolSelectionArea.innerHTML = '';
+            SIMBOLS.forEach(simbol => simbolSelectionArea.appendChild(createSimbolElement(simbol, true)));
             
             historyLog.innerHTML = '';
             attemptsLeftEl.textContent = attempts;
@@ -244,22 +239,22 @@
 
         function renderCurrentGuess() {
             currentGuessArea.innerHTML = '';
-            for(let i = 0; i < RUNE_COUNT; i++) {
+            for(let i = 0; i < SIMBOL_COUNT; i++) {
                 if(currentGuess[i]) {
-                    currentGuessArea.appendChild(createRuneElement(currentGuess[i]));
+                    currentGuessArea.appendChild(createSimbolElement(currentGuess[i]));
                 } else {
                     const slot = document.createElement('div');
                     slot.className = 'guess-slot w-12 h-12 md:w-14 md:h-14';
                     currentGuessArea.appendChild(slot);
                 }
             }
-            submitGuessBtn.disabled = currentGuess.length !== RUNE_COUNT;
+            submitGuessBtn.disabled = currentGuess.length !== SIMBOL_COUNT;
         }
 
-        function handleRuneSelection(rune) {
-            if (isGameOver || currentGuess.length >= RUNE_COUNT) return;
-            if (!currentGuess.some(r => r.id === rune.id)) {
-                currentGuess.push(rune);
+        function handleSimbolSelection(simbol) {
+            if (isGameOver || currentGuess.length >= SIMBOL_COUNT) return;
+            if (!currentGuess.some(r => r.id === simbol.id)) {
+                currentGuess.push(simbol);
                 renderCurrentGuess();
             }
         }
@@ -271,16 +266,16 @@
         });
 
         submitGuessBtn.addEventListener('click', () => {
-            if (isGameOver || currentGuess.length !== RUNE_COUNT) return;
-            const { correctPosition, correctRune } = checkGuess();
-            historyData.push({ guess: [...currentGuess], feedback: { correctPosition, correctRune }});
-            addGuessToHistory(correctPosition, correctRune);
+            if (isGameOver || currentGuess.length !== SIMBOL_COUNT) return;
+            const { correctPosition, correctSimbol } = checkGuess();
+            historyData.push({ guess: [...currentGuess], feedback: { correctPosition, correctSimbol }});
+            addGuessToHistory(correctPosition, correctSimbol);
             
             attempts--;
             attemptsLeftEl.textContent = attempts;
             getProphecyBtn.disabled = true;
             
-            if (correctPosition === RUNE_COUNT) {
+            if (correctPosition === SIMBOL_COUNT) {
                 endGame(true);
             } else if (attempts === 0) {
                 endGame(false);
@@ -295,57 +290,69 @@
         });
 
         function checkGuess() {
-            let correctPosition = 0, correctRune = 0;
+            let correctPosition = 0, correctSimbol = 0;
             const guessIds = currentGuess.map(r => r.id);
             const secretIds = secretCode.map(r => r.id);
-            let checkedGuess = Array(RUNE_COUNT).fill(false);
-            let checkedSecret = Array(RUNE_COUNT).fill(false);
-            for (let i = 0; i < RUNE_COUNT; i++) {
+            let checkedGuess = Array(SIMBOL_COUNT).fill(false);
+            let checkedSecret = Array(SIMBOL_COUNT).fill(false);
+            for (let i = 0; i < SIMBOL_COUNT; i++) {
                 if (guessIds[i] === secretIds[i]) {
                     correctPosition++;
                     checkedGuess[i] = true;
                     checkedSecret[i] = true;
                 }
             }
-            for (let i = 0; i < RUNE_COUNT; i++) {
+            for (let i = 0; i < SIMBOL_COUNT; i++) {
                 if (checkedGuess[i]) continue;
-                for (let j = 0; j < RUNE_COUNT; j++) {
+                for (let j = 0; j < SIMBOL_COUNT; j++) {
                     if (checkedSecret[j]) continue;
                     if (guessIds[i] === secretIds[j]) {
-                        correctRune++;
+                        correctSimbol++;
                         checkedSecret[j] = true;
                         break; 
                     }
                 }
             }
-            return { correctPosition, correctRune };
+            return { correctPosition, correctSimbol };
         }
 
-        function addGuessToHistory(correctPosition, correctRune) {
+        function addGuessToHistory(correctPosition, correctSimbol) {
             const historyRow = document.createElement('div');
-            historyRow.className = 'history-row flex justify-between items-center p-2 animate-fade-in';
+            historyRow.className = 'history-row flex justify-between items-center p-2';
+
             const guessDisplay = document.createElement('div');
             guessDisplay.className = 'flex items-center space-x-2';
-            currentGuess.forEach(rune => {
-                 const runeEl = createRuneElement(rune);
-                 runeEl.classList.remove('md:w-14', 'md:h-14');
-                 runeEl.classList.add('w-8', 'h-8');
-                 runeEl.firstElementChild.setAttribute('width', '20');
-                 runeEl.firstElementChild.setAttribute('height', '20');
-                 guessDisplay.appendChild(runeEl);
+            currentGuess.forEach(simbol => {
+                 const simbolEl = createSimbolElement(simbol);
+                 simbolEl.classList.remove('md:w-14', 'md:h-14');
+                 simbolEl.classList.add('w-8', 'h-8');
+                 simbolEl.firstElementChild.setAttribute('width', '20');
+                 simbolEl.firstElementChild.setAttribute('height', '20');
+                 guessDisplay.appendChild(simbolEl);
             });
+            
             const feedbackDisplay = document.createElement('div');
-            feedbackDisplay.className = 'flex items-center space-x-1';
-            for (let i = 0; i < correctPosition; i++) {
-                const peg = document.createElement('div');
-                peg.className = 'feedback-peg w-4 h-4 rounded-full bg-green-500 border-2 border-green-300';
-                feedbackDisplay.appendChild(peg);
-            }
-             for (let i = 0; i < correctRune; i++) {
-                const peg = document.createElement('div');
-                peg.className = 'feedback-peg w-4 h-4 rounded-full bg-yellow-500 border-2 border-yellow-300';
-                feedbackDisplay.appendChild(peg);
-            }
+            feedbackDisplay.className = 'flex flex-col items-end text-sm text-gray-300';
+
+            const correctPosEl = document.createElement('div');
+            correctPosEl.className = 'flex items-center';
+            correctPosEl.innerHTML = `
+                <span>Posisi Tepat:</span>
+                <span class="font-bold text-lg text-green-400 ml-2">${correctPosition}</span>
+                <span class="ml-1 text-xl">✅</span>
+            `;
+
+            const correctRuneEl = document.createElement('div');
+            correctRuneEl.className = 'flex items-center mt-1';
+            correctRuneEl.innerHTML = `
+                <span>Simbol Benar:</span>
+                <span class="font-bold text-lg text-yellow-400 ml-2">${correctSimbol}</span>
+                <span class="ml-1 text-xl">🔄</span>
+            `;
+
+            feedbackDisplay.appendChild(correctPosEl);
+            feedbackDisplay.appendChild(correctRuneEl);
+            
             historyRow.appendChild(guessDisplay);
             historyRow.appendChild(feedbackDisplay);
             historyLog.prepend(historyRow);
@@ -358,7 +365,7 @@
             getCommentBtn.disabled = true;
             askQuestionBtn.disabled = true;
             secretCodeDisplay.innerHTML = '';
-            secretCode.forEach(rune => secretCodeDisplay.appendChild(createRuneElement(rune)));
+            secretCode.forEach(simbol => secretCodeDisplay.appendChild(createSimbolElement(simbol)));
             if(isWin) {
                 modalTitle.textContent = "Selamat!";
                 modalTitle.style.color = '#1dd1a1';
@@ -418,7 +425,7 @@
             let text = '';
             historyData.forEach((item, index) => {
                 const guessNames = item.guess.map(r => r.name).join(', ');
-                text += `Tebakan ${index + 1}: [${guessNames}], Hasil: ${item.feedback.correctPosition} Hijau, ${item.feedback.correctRune} Kuning.\n`;
+                text += `Tebakan ${index + 1}: [${guessNames}], Hasil: ${item.feedback.correctPosition} Posisi Tepat, ${item.feedback.correctSimbol} Simbol Benar (posisi salah).\n`;
             });
             return text;
         }
@@ -426,13 +433,13 @@
         getProphecyBtn.addEventListener('click', () => {
             getProphecyBtn.disabled = true;
             const secretThemes = secretCode.map(r => r.theme).join(', ');
-            const prompt = `Anda adalah Oracle di game Enigma Runic. Kode rahasia memiliki tema: ${secretThemes}. Berikan ramalan puitis dua kalimat yang samar tentang tema-tema ini tanpa menyebutkan nama atau bentuk rune. Ramalan ini harus dalam bahasa Indonesia. Contoh: 'Kekuatan yang menempa bumi bersatu dengan ketenangan samudra terdalam.'`;
+            const prompt = `Anda adalah Oracle di game Enigma Simbol. Kode rahasia memiliki tema: ${secretThemes}. Berikan ramalan puitis dua kalimat yang samar tentang tema-tema ini tanpa menyebutkan nama atau bentuk simbol. Ramalan ini harus dalam bahasa Indonesia. Contoh: 'Kekuatan yang menempa bumi bersatu dengan ketenangan samudra terdalam.'`;
             
             showInfoModal("Ramalan Sang Oracle", callGemini(prompt), '#14b8a6');
         });
         
         getHintBtn.addEventListener('click', () => {
-            const prompt = `Anda adalah seorang ahli logika dalam permainan memecahkan kode bernama Enigma Runic. Aturannya adalah menebak urutan 4 rune unik dari 6 pilihan rune. Pilihan rune: ${RUNES.map(r => r.name).join(', ')}. Petunjuk: 'Hijau' berarti 1 rune benar di posisi yang tepat. 'Kuning' berarti 1 rune benar tapi di posisi yang salah. Berikut adalah riwayat tebakan sejauh ini:\n${getHistoryAsText()} Berdasarkan riwayat di atas, berikan satu petunjuk atau deduksi logis yang berguna untuk tebakan selanjutnya. Jangan berikan jawaban langsung. Berikan dalam format singkat dan padat. Berikan dalam bahasa Indonesia.`;
+            const prompt = `Anda adalah seorang ahli logika dalam permainan memecahkan kode bernama Enigma Simbol. Aturannya adalah menebak urutan 4 simbol unik dari 6 pilihan simbol. Pilihan simbol: ${SIMBOLS.map(r => r.name).join(', ')}. Petunjuk: 'Posisi Tepat' berarti 1 simbol benar di posisi yang tepat. 'Simbol Benar' berarti 1 simbol benar tapi di posisi yang salah. Berikut adalah riwayat tebakan sejauh ini:\n${getHistoryAsText()} Berdasarkan riwayat di atas, berikan satu petunjuk atau deduksi logis yang berguna untuk tebakan selanjutnya. Jangan berikan jawaban langsung. Berikan dalam format singkat dan padat. Berikan dalam bahasa Indonesia.`;
             showInfoModal("Petunjuk dari Sang Oracle", callGemini(prompt), '#3b82f6');
         });
 
@@ -440,8 +447,8 @@
             if (historyData.length === 0) return;
             const lastGuess = historyData[historyData.length - 1];
             const guessNames = lastGuess.guess.map(r => r.name).join(', ');
-            const feedback = `${lastGuess.feedback.correctPosition} Hijau, ${lastGuess.feedback.correctRune} Kuning`;
-            const prompt = `Anda adalah Oracle yang sedikit sombong dan misterius di game Enigma Runic. Seorang pemain baru saja membuat tebakan [${guessNames}] dan hasilnya adalah ${feedback}. Berikan satu kalimat komentar yang puitis, samar, atau sedikit mengejek tentang tebakan mereka. Jangan berikan petunjuk langsung. Gunakan bahasa Indonesia.`;
+            const feedback = `${lastGuess.feedback.correctPosition} Posisi Tepat, ${lastGuess.feedback.correctSimbol} Simbol Benar`;
+            const prompt = `Anda adalah Oracle yang sedikit sombong dan misterius di game Enigma Simbol. Seorang pemain baru saja membuat tebakan [${guessNames}] dan hasilnya adalah ${feedback}. Berikan satu kalimat komentar yang puitis, samar, atau sedikit mengejek tentang tebakan mereka. Jangan berikan petunjuk langsung. Gunakan bahasa Indonesia.`;
             showInfoModal("Komentar Sang Oracle", callGemini(prompt), '#6366f1');
         });
         
@@ -462,8 +469,8 @@
             attempts--;
             attemptsLeftEl.textContent = attempts;
             
-            const secretRuneNames = secretCode.map(r => r.name);
-            const prompt = `Anda adalah Oracle di game Enigma Runic. Anda harus menjawab pertanyaan dari pemain dengan jawaban "Ya" atau "Tidak" yang dibungkus kalimat puitis. Jangan bertele-tele. Konteks kode rahasia: [${secretRuneNames.join(', ')}]. Pertanyaan pemain: "${question}". Jawab dalam bahasa Indonesia.`;
+            const secretSimbolNames = secretCode.map(r => r.name);
+            const prompt = `Anda adalah Oracle di game Enigma Simbol. Anda harus menjawab pertanyaan dari pemain dengan jawaban "Ya" atau "Tidak" yang dibungkus kalimat puitis. Jangan bertele-tele. Konteks kode rahasia: [${secretSimbolNames.join(', ')}]. Pertanyaan pemain: "${question}". Jawab dalam bahasa Indonesia.`;
             
             showInfoModal("Jawaban Sang Oracle", callGemini(prompt), '#d97706');
             questionInput.value = '';
@@ -478,18 +485,18 @@
             getLoreBtn.disabled = true;
             loreResult.innerHTML = '<div class="loader mx-auto"></div>';
             const solvedCodeNames = secretCode.map(r => r.name).join(', ');
-            const prompt = `Anda adalah seorang penyair dan penjaga hikayat kuno. Tuliskan sebuah legenda atau cerita pendek (sekitar 2-3 kalimat) tentang sebuah kombinasi rune sakral yang dikenal sebagai "${solvedCodeNames}". Ceritanya harus mistis dan menarik. Gunakan bahasa Indonesia.`;
+            const prompt = `Anda adalah seorang penyair dan penjaga hikayat kuno. Tuliskan sebuah legenda atau cerita pendek (sekitar 2-3 kalimat) tentang sebuah kombinasi simbol sakral yang dikenal sebagai "${solvedCodeNames}". Ceritanya harus mistis dan menarik. Gunakan bahasa Indonesia.`;
             
             try {
                 const lore = await callGemini(prompt);
                 loreResult.innerHTML = `<p>${lore}</p>`;
             } catch (error) {
-                loreResult.textContent = "Kisah rune ini telah hilang ditelan waktu.";
+                loreResult.textContent = "Kisah simbol ini telah hilang ditelan waktu.";
             }
         });
 
         getAnalysisBtn.addEventListener('click', () => {
-             const prompt = `Anda adalah seorang pelatih logika yang menganalisis permainan Enigma Runic. Berikan analisis singkat dan satu saran strategis berdasarkan riwayat tebakan pemain berikut. Tujuannya adalah untuk membantu pemain berpikir lebih baik di permainan selanjutnya. Jangan terlalu keras, berikan semangat. Gunakan bahasa Indonesia.\n\nRiwayat Tebakan:\n${getHistoryAsText()}`;
+             const prompt = `Anda adalah seorang pelatih logika yang menganalisis permainan Enigma Simbol. Berikan analisis singkat dan satu saran strategis berdasarkan riwayat tebakan pemain berikut. Tujuannya adalah untuk membantu pemain berpikir lebih baik di permainan selanjutnya. Jangan terlalu keras, berikan semangat. Gunakan bahasa Indonesia.\n\nRiwayat Tebakan:\n${getHistoryAsText()}`;
              
              showInfoModal("Analisis Permainan", callGemini(prompt), '#dc2626');
         });
