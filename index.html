@@ -62,7 +62,8 @@
 
     <div class="w-full max-w-2xl text-center">
         <h1 class="text-5xl md:text-6xl font-cinzel font-bold mb-2" style="text-shadow: 0 0 10px #f7b733;">Enigma Runic</h1>
-        <p class="mb-6 text-lg text-gray-400">Pecahkan urutan 4 rune rahasia dalam 10 kesempatan.</p>
+        <p class="mb-4 text-lg text-gray-400">Pecahkan urutan 4 rune rahasia dalam 10 kesempatan.</p>
+        <button id="get-prophecy" class="mb-4 bg-teal-600 hover:bg-teal-500 text-white font-bold py-2 px-5 rounded-full text-sm transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-teal-400 disabled:bg-gray-600 disabled:cursor-not-allowed disabled:transform-none">Dengarkan Ramalan Oracle ✨</button>
 
         <div id="game-container" class="bg-gray-800 bg-opacity-50 p-6 rounded-2xl shadow-2xl border border-gray-700">
             
@@ -80,8 +81,10 @@
                  <button id="submit-guess" class="bg-yellow-600 hover:bg-yellow-500 text-white font-bold py-3 px-6 rounded-lg text-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-yellow-400 disabled:bg-gray-600 disabled:cursor-not-allowed disabled:transform-none">Tebak</button>
                  <button id="clear-guess" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-3 px-6 rounded-lg text-lg transition-transform transform hover:scale-105 focus:outline-none">Ulangi</button>
                  <button id="get-hint" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-6 rounded-lg text-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-400 disabled:bg-gray-600 disabled:cursor-not-allowed disabled:transform-none">Minta Petunjuk ✨</button>
+                 <button id="get-comment" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-6 rounded-lg text-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-indigo-400 disabled:bg-gray-600 disabled:cursor-not-allowed disabled:transform-none">Komentar Oracle ✨</button>
             </div>
-            <p class="mt-4 text-lg">Sisa Percobaan: <span id="attempts-left" class="font-bold">10</span></p>
+            <button id="ask-question" class="mt-4 bg-orange-700 hover:bg-orange-600 text-white font-bold py-2 px-5 rounded-full text-sm transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-orange-500 disabled:bg-gray-600 disabled:cursor-not-allowed disabled:transform-none">Ritual Pertanyaan (-1) ✨</button>
+            <p class="mt-2 text-lg">Sisa Percobaan: <span id="attempts-left" class="font-bold">10</span></p>
 
         </div>
         
@@ -113,12 +116,25 @@
         </div>
     </div>
 
-    <!-- Modal Petunjuk & Analisis -->
+    <!-- Modal Info Umum (Petunjuk, Analisis, Ramalan, Komentar) -->
     <div id="infoModal" class="modal fixed inset-0 bg-black bg-opacity-80 items-center justify-center p-4">
         <div id="info-modal-content-box" class="bg-gray-900 p-8 rounded-2xl shadow-2xl text-center border-2 max-w-md w-full">
             <h2 id="info-modal-title" class="text-3xl font-cinzel font-bold mb-4"></h2>
             <div id="info-modal-content" class="text-lg mb-6 min-h-[5rem] flex items-center justify-center text-left"></div>
             <button id="close-info-button" class="text-white font-bold py-2 px-6 rounded-lg">Tutup</button>
+        </div>
+    </div>
+    
+    <!-- Modal Pertanyaan -->
+    <div id="questionModal" class="modal fixed inset-0 bg-black bg-opacity-80 items-center justify-center p-4">
+        <div class="bg-gray-900 p-8 rounded-2xl shadow-2xl text-center border-2 border-orange-500 max-w-md w-full">
+            <h2 class="text-3xl font-cinzel font-bold mb-4 text-orange-400">Ritual Pertanyaan</h2>
+            <p class="mb-4 text-gray-300">Ajukan satu pertanyaan kepada Oracle. Ini akan mengorbankan 1 sisa percobaan.</p>
+            <input type="text" id="question-input" class="w-full bg-gray-700 text-white p-2 rounded-md mb-4 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="Contoh: Apakah Rune Api ada dalam kode?">
+            <div class="flex justify-center gap-4">
+                <button id="submit-question" class="bg-orange-600 hover:bg-orange-500 text-white font-bold py-2 px-6 rounded-lg">Tanya</button>
+                <button id="cancel-question" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-6 rounded-lg">Batal</button>
+            </div>
         </div>
     </div>
 
@@ -127,29 +143,33 @@
         const RUNE_COUNT = 4;
         const MAX_ATTEMPTS = 10;
         const RUNES = [
-            { id: 1, name: "Segitiga Api", svg: '<path d="M12 2 L22 22 L2 22 Z" stroke="currentColor" stroke-width="2" fill="none"/>', color: '#ff6b6b' },
-            { id: 2, name: "Lingkaran Air", svg: '<circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>', color: '#48dbfb' },
-            { id: 3, name: "Mata Angin", svg: '<path d="M2 12 Q12 2 22 12 Q12 22 2 12 Z" stroke="currentColor" stroke-width="2" fill="none"/>', color: '#1dd1a1' },
-            { id: 4, name: "Berlian Tanah", svg: '<rect x="3" y="3" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" transform="rotate(45 12 12)"/>', color: '#feca57' },
-            { id: 5, name: "Simpul Petir", svg: '<path d="M2 2 L12 12 L2 22 M22 2 L12 12 L22 22" stroke="currentColor" stroke-width="2" fill="none"/>', color: '#ff9ff3' },
-            { id: 6, name: "Salib Roh", svg: '<path d="M12 2 V22 M2 12 H22" stroke="currentColor" stroke-width="2" fill="none"/>', color: '#54a0ff' }
+            { id: 1, name: "Segitiga Api", theme: "api, panas, kehancuran", svg: '<path d="M12 2 L22 22 L2 22 Z" stroke="currentColor" stroke-width="2" fill="none"/>', color: '#ff6b6b' },
+            { id: 2, name: "Lingkaran Air", theme: "air, ketenangan, kehidupan", svg: '<circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>', color: '#48dbfb' },
+            { id: 3, name: "Mata Angin", theme: "angin, kebebasan, perjalanan", svg: '<path d="M2 12 Q12 2 22 12 Q12 22 2 12 Z" stroke="currentColor" stroke-width="2" fill="none"/>', color: '#1dd1a1' },
+            { id: 4, name: "Berlian Tanah", theme: "tanah, kekuatan, kestabilan", svg: '<rect x="3" y="3" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" transform="rotate(45 12 12)"/>', color: '#feca57' },
+            { id: 5, name: "Simpul Petir", theme: "petir, energi, kecepatan", svg: '<path d="M2 2 L12 12 L2 22 M22 2 L12 12 L22 22" stroke="currentColor" stroke-width="2" fill="none"/>', color: '#ff9ff3' },
+            { id: 6, name: "Salib Roh", theme: "roh, keseimbangan, alam baka", svg: '<path d="M12 2 V22 M2 12 H22" stroke="currentColor" stroke-width="2" fill="none"/>', color: '#54a0ff' }
         ];
 
         // --- Elemen DOM ---
+        const getProphecyBtn = document.getElementById('get-prophecy');
         const getHintBtn = document.getElementById('get-hint');
+        const getCommentBtn = document.getElementById('get-comment');
+        const askQuestionBtn = document.getElementById('ask-question');
+        const questionModal = document.getElementById('questionModal');
+        const questionInput = document.getElementById('question-input');
+        const submitQuestionBtn = document.getElementById('submit-question');
+        const cancelQuestionBtn = document.getElementById('cancel-question');
         const infoModal = document.getElementById('infoModal');
         const infoModalTitle = document.getElementById('info-modal-title');
         const infoModalContent = document.getElementById('info-modal-content');
         const infoModalContentBox = document.getElementById('info-modal-content-box');
         const closeInfoBtn = document.getElementById('close-info-button');
-        
         const getLoreBtn = document.getElementById('get-lore');
         const loreResult = document.getElementById('lore-result');
         const geminiWinFeatures = document.getElementById('gemini-win-features');
-        
         const getAnalysisBtn = document.getElementById('get-analysis');
         const geminiLoseFeatures = document.getElementById('gemini-lose-features');
-
         const currentGuessArea = document.getElementById('current-guess-area');
         const runeSelectionArea = document.getElementById('rune-selection-area');
         const submitGuessBtn = document.getElementById('submit-guess');
@@ -198,6 +218,9 @@
             resultModal.classList.remove('show');
             submitGuessBtn.disabled = true;
             getHintBtn.disabled = true;
+            getCommentBtn.disabled = true;
+            askQuestionBtn.disabled = true;
+            getProphecyBtn.disabled = false;
             geminiWinFeatures.classList.add('hidden');
             geminiLoseFeatures.classList.add('hidden');
             loreResult.innerHTML = '';
@@ -243,10 +266,17 @@
             
             attempts--;
             attemptsLeftEl.textContent = attempts;
-            getHintBtn.disabled = historyData.length === 0;
+            getProphecyBtn.disabled = true;
             
-            if (correctPosition === RUNE_COUNT) endGame(true);
-            else if (attempts === 0) endGame(false);
+            if (correctPosition === RUNE_COUNT) {
+                endGame(true);
+            } else if (attempts === 0) {
+                endGame(false);
+            } else {
+                getHintBtn.disabled = false;
+                getCommentBtn.disabled = false;
+                if(historyData.length >= 2) askQuestionBtn.disabled = false;
+            }
             
             currentGuess = [];
             renderCurrentGuess();
@@ -311,6 +341,10 @@
 
         function endGame(isWin) {
             isGameOver = true;
+            getHintBtn.disabled = true;
+            getProphecyBtn.disabled = true;
+            getCommentBtn.disabled = true;
+            askQuestionBtn.disabled = true;
             secretCodeDisplay.innerHTML = '';
             secretCode.forEach(rune => secretCodeDisplay.appendChild(createRuneElement(rune)));
             if(isWin) {
@@ -337,10 +371,10 @@
             infoModalContent.innerHTML = '<div class="loader"></div>';
 
             contentPromise.then(content => {
-                infoModalContent.innerHTML = content;
+                infoModalContent.innerHTML = `<p class="italic">"${content}"</p>`;
             }).catch(error => {
                 console.error("Error showing modal content:", error);
-                infoModalContent.textContent = "Terjadi kesalahan.";
+                infoModalContent.textContent = "Terjadi kesalahan saat memuat data.";
             });
         }
         
@@ -362,7 +396,7 @@
             }
             const result = await response.json();
             if (result.candidates && result.candidates[0].content.parts[0].text) {
-                return result.candidates[0].content.parts[0].text;
+                return result.candidates[0].content.parts[0].text.replace(/"/g, '');
             } else {
                 throw new Error("No content received from Gemini.");
             }
@@ -376,16 +410,57 @@
             });
             return text;
         }
+
+        getProphecyBtn.addEventListener('click', () => {
+            getProphecyBtn.disabled = true;
+            const secretThemes = secretCode.map(r => r.theme).join(', ');
+            const prompt = `Anda adalah Oracle di game Enigma Runic. Kode rahasia memiliki tema: ${secretThemes}. Berikan ramalan puitis dua kalimat yang samar tentang tema-tema ini tanpa menyebutkan nama atau bentuk rune. Ramalan ini harus dalam bahasa Indonesia. Contoh: 'Kekuatan yang menempa bumi bersatu dengan ketenangan samudra terdalam.'`;
+            
+            showInfoModal("Ramalan Sang Oracle", callGemini(prompt), '#14b8a6');
+        });
         
         getHintBtn.addEventListener('click', () => {
-            const prompt = `Anda adalah seorang ahli logika dalam permainan memecahkan kode bernama Enigma Runic. Aturannya adalah menebak urutan 4 rune unik dari 6 pilihan rune.
-            Pilihan rune: ${RUNES.map(r => r.name).join(', ')}.
-            Petunjuk: 'Hijau' berarti 1 rune benar di posisi yang tepat. 'Kuning' berarti 1 rune benar tapi di posisi yang salah.
-            Berikut adalah riwayat tebakan sejauh ini:\n${getHistoryAsText()}
-            Berdasarkan riwayat di atas, berikan satu petunjuk atau deduksi logis yang berguna untuk tebakan selanjutnya. Jangan berikan jawaban langsung. Berikan dalam format singkat dan padat. Berikan dalam bahasa Indonesia.`;
-            
+            const prompt = `Anda adalah seorang ahli logika dalam permainan memecahkan kode bernama Enigma Runic. Aturannya adalah menebak urutan 4 rune unik dari 6 pilihan rune. Pilihan rune: ${RUNES.map(r => r.name).join(', ')}. Petunjuk: 'Hijau' berarti 1 rune benar di posisi yang tepat. 'Kuning' berarti 1 rune benar tapi di posisi yang salah. Berikut adalah riwayat tebakan sejauh ini:\n${getHistoryAsText()} Berdasarkan riwayat di atas, berikan satu petunjuk atau deduksi logis yang berguna untuk tebakan selanjutnya. Jangan berikan jawaban langsung. Berikan dalam format singkat dan padat. Berikan dalam bahasa Indonesia.`;
             showInfoModal("Petunjuk dari Sang Oracle", callGemini(prompt), '#3b82f6');
         });
+
+        getCommentBtn.addEventListener('click', () => {
+            if (historyData.length === 0) return;
+            const lastGuess = historyData[historyData.length - 1];
+            const guessNames = lastGuess.guess.map(r => r.name).join(', ');
+            const feedback = `${lastGuess.feedback.correctPosition} Hijau, ${lastGuess.feedback.correctRune} Kuning`;
+            const prompt = `Anda adalah Oracle yang sedikit sombong dan misterius di game Enigma Runic. Seorang pemain baru saja membuat tebakan [${guessNames}] dan hasilnya adalah ${feedback}. Berikan satu kalimat komentar yang puitis, samar, atau sedikit mengejek tentang tebakan mereka. Jangan berikan petunjuk langsung. Gunakan bahasa Indonesia.`;
+            showInfoModal("Komentar Sang Oracle", callGemini(prompt), '#6366f1');
+        });
+        
+        askQuestionBtn.addEventListener('click', () => {
+            questionModal.classList.add('show');
+        });
+        
+        cancelQuestionBtn.addEventListener('click', () => {
+            questionModal.classList.remove('show');
+        });
+
+        submitQuestionBtn.addEventListener('click', () => {
+            const question = questionInput.value.trim();
+            if (!question) return;
+
+            questionModal.classList.remove('show');
+            
+            attempts--;
+            attemptsLeftEl.textContent = attempts;
+            
+            const secretRuneNames = secretCode.map(r => r.name);
+            const prompt = `Anda adalah Oracle di game Enigma Runic. Anda harus menjawab pertanyaan dari pemain dengan jawaban "Ya" atau "Tidak" yang dibungkus kalimat puitis. Jangan bertele-tele. Konteks kode rahasia: [${secretRuneNames.join(', ')}]. Pertanyaan pemain: "${question}". Jawab dalam bahasa Indonesia.`;
+            
+            showInfoModal("Jawaban Sang Oracle", callGemini(prompt), '#d97706');
+            questionInput.value = '';
+
+            if (attempts === 0) {
+                setTimeout(() => endGame(false), 500);
+            }
+        });
+
 
         getLoreBtn.addEventListener('click', async () => {
             getLoreBtn.disabled = true;
