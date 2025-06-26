@@ -42,7 +42,6 @@
         .modal.show {
             display: flex;
         }
-        /* Animasi loading sederhana */
         .loader {
             border: 4px solid #f3f3f3;
             border-top: 4px solid #f7b733;
@@ -55,17 +54,32 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        /* Perbaikan untuk browser lama */
         .button-wrapper > button {
             margin: 0.5rem;
+        }
+        /* Efek Api untuk Judul */
+        .flaming-title {
+            color: #fefefe;
+            text-shadow: 0 0 4px #fefefe, 0 0 10px #ffc400, 0 0 20px #ff8c00, 0 0 30px #ff4500;
+            animation: fire-flicker 2s ease-in-out infinite alternate;
+        }
+        @keyframes fire-flicker {
+            to {
+                text-shadow: 0 0 6px #fefefe, 0 0 15px #ffc400, 0 0 25px #ff8c00, 0 0 40px #ff4500;
+            }
         }
     </style>
 </head>
 <body class="text-gray-200 flex items-center justify-center min-h-screen p-4">
 
     <div class="w-full max-w-2xl text-center">
-        <h1 class="text-5xl md:text-6xl font-cinzel font-bold mb-2" style="text-shadow: 0 0 10px #f7b733;">Zky's Enigma</h1>
-        <p class="mb-4 text-lg text-gray-400">Pecahkan urutan 4 simbol rahasia dalam 10 kesempatan.</p>
+        <div class="flex justify-center items-center gap-4 mb-2">
+            <img id="game-logo" src="https://placehold.co/80x80/243b55/f7b733?text=Zky" alt="Logo Game" class="w-16 h-16 md:w-20 md:h-20 rounded-full border-2 border-yellow-400 object-cover">
+            <h1 class="text-5xl md:text-6xl font-cinzel font-bold flaming-title">Zky's Enigma</h1>
+        </div>
+        <button id="change-logo-btn" class="text-xs text-cyan-400 hover:text-cyan-300 mb-2">Ganti Logo</button>
+        <p class="text-xl font-cinzel text-yellow-300 mb-4">Uji Logika, Ungkap Misteri.</p>
+        <p class="mb-6 text-lg text-gray-400">Pecahkan urutan 4 simbol rahasia dalam 10 kesempatan.</p>
         <button id="get-prophecy" class="mb-4 bg-teal-600 hover:bg-teal-500 text-white font-bold py-2 px-5 rounded-full text-sm transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-teal-400 disabled:bg-gray-600 disabled:cursor-not-allowed disabled:transform-none">Dengarkan Ramalan Oracle ✨</button>
 
         <div id="game-container" class="bg-gray-800 bg-opacity-50 p-6 rounded-2xl shadow-2xl border border-gray-700">
@@ -119,7 +133,7 @@
         </div>
     </div>
 
-    <!-- Modal Info Umum (Petunjuk, Analisis, Ramalan, Komentar) -->
+    <!-- Modal Info Umum -->
     <div id="infoModal" class="modal fixed inset-0 bg-black bg-opacity-80 items-center justify-center p-4">
         <div id="info-modal-content-box" class="bg-gray-900 p-8 rounded-2xl shadow-2xl text-center border-2 max-w-md w-full">
             <h2 id="info-modal-title" class="text-3xl font-cinzel font-bold mb-4"></h2>
@@ -141,6 +155,19 @@
         </div>
     </div>
 
+    <!-- Modal Ganti Logo -->
+    <div id="logoModal" class="modal fixed inset-0 bg-black bg-opacity-80 items-center justify-center p-4">
+        <div class="bg-gray-900 p-8 rounded-2xl shadow-2xl text-center border-2 border-cyan-500 max-w-md w-full">
+            <h2 class="text-3xl font-cinzel font-bold mb-4 text-cyan-400">Ganti Logo Game</h2>
+            <p class="mb-4 text-gray-300">Masukkan URL gambar untuk logo baru.</p>
+            <input type="url" id="logo-url-input" class="w-full bg-gray-700 text-white p-2 rounded-md mb-4 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-cyan-500" placeholder="https://...gambar.jpg">
+            <div class="flex justify-center gap-4">
+                <button id="submit-logo" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2 px-6 rounded-lg">Simpan</button>
+                <button id="cancel-logo" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-6 rounded-lg">Batal</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // --- Konfigurasi Game ---
         const SIMBOL_COUNT = 4;
@@ -155,6 +182,12 @@
         ];
 
         // --- Elemen DOM ---
+        const gameLogo = document.getElementById('game-logo');
+        const changeLogoBtn = document.getElementById('change-logo-btn');
+        const logoModal = document.getElementById('logoModal');
+        const logoUrlInput = document.getElementById('logo-url-input');
+        const submitLogoBtn = document.getElementById('submit-logo');
+        const cancelLogoBtn = document.getElementById('cancel-logo');
         const getProphecyBtn = document.getElementById('get-prophecy');
         const getHintBtn = document.getElementById('get-hint');
         const getCommentBtn = document.getElementById('get-comment');
@@ -393,7 +426,7 @@
                 infoModalContent.innerHTML = `<p class="italic">"${content}"</p>`;
             }).catch(error => {
                 console.error("Error showing modal content:", error);
-                infoModalContent.textContent = "Terjadi kesalahan saat memuat data.";
+                infoModalContent.innerHTML = `<p>Terjadi kesalahan saat memuat data. Pastikan API Key Anda valid.</p>`;
             });
         }
         
@@ -429,6 +462,31 @@
             });
             return text;
         }
+
+        changeLogoBtn.addEventListener('click', () => {
+            logoModal.classList.add('show');
+        });
+
+        cancelLogoBtn.addEventListener('click', () => {
+            logoModal.classList.remove('show');
+        });
+
+        submitLogoBtn.addEventListener('click', () => {
+            const newLogoUrl = logoUrlInput.value.trim();
+            if (newLogoUrl) {
+                gameLogo.src = newLogoUrl;
+            }
+            logoModal.classList.remove('show');
+        });
+
+        gameLogo.onerror = function() {
+            this.src = 'https://placehold.co/80x80/243b55/f7b733?text=Zky';
+            showInfoModal(
+                "Kesalahan Gambar", 
+                Promise.resolve("URL gambar yang Anda masukkan tidak valid atau tidak dapat dimuat. Logo telah dikembalikan ke default."), 
+                '#ef4444' // red-500
+            );
+        };
 
         getProphecyBtn.addEventListener('click', () => {
             getProphecyBtn.disabled = true;
