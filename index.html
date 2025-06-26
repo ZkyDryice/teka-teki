@@ -21,6 +21,7 @@
             transition: transform 0.2s ease, box-shadow 0.2s ease;
             cursor: pointer;
             border: 2px solid #5a677d;
+            flex-shrink: 0; /* Mencegah rune menyusut */
         }
         .rune:hover {
             transform: scale(1.1);
@@ -30,9 +31,11 @@
         .guess-slot {
             border: 2px dashed #4a5568;
             background-color: rgba(0, 0, 0, 0.2);
+            flex-shrink: 0; /* Mencegah slot menyusut */
         }
         .feedback-peg {
             transition: transform 0.3s ease;
+            flex-shrink: 0;
         }
         .history-row {
             border-bottom: 1px solid #3a475d;
@@ -56,6 +59,10 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        /* Perbaikan untuk browser lama */
+        .button-wrapper > button {
+            margin: 0.5rem;
+        }
     </style>
 </head>
 <body class="text-gray-200 flex items-center justify-center min-h-screen p-4">
@@ -74,10 +81,10 @@
 
             <div class="mb-6">
                  <h2 class="text-xl font-cinzel mb-3">Pilih Rune</h2>
-                <div id="rune-selection-area" class="flex flex-wrap justify-center items-center gap-2 md:gap-4 p-4 bg-black bg-opacity-20 rounded-lg"></div>
+                <div id="rune-selection-area" class="flex flex-wrap justify-center items-center -m-1 md:-m-2 p-4 bg-black bg-opacity-20 rounded-lg"></div>
             </div>
             
-            <div class="flex flex-wrap justify-center items-center gap-4">
+            <div class="flex flex-wrap justify-center items-center button-wrapper">
                  <button id="submit-guess" class="bg-yellow-600 hover:bg-yellow-500 text-white font-bold py-3 px-6 rounded-lg text-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-yellow-400 disabled:bg-gray-600 disabled:cursor-not-allowed disabled:transform-none">Tebak</button>
                  <button id="clear-guess" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-3 px-6 rounded-lg text-lg transition-transform transform hover:scale-105 focus:outline-none">Ulangi</button>
                  <button id="get-hint" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-6 rounded-lg text-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-400 disabled:bg-gray-600 disabled:cursor-not-allowed disabled:transform-none">Minta Petunjuk ✨</button>
@@ -189,7 +196,12 @@
 
         function createRuneElement(rune, isInteractive = false) {
             const runeEl = document.createElement('div');
-            runeEl.className = 'rune w-12 h-12 md:w-14 md:h-14 bg-gray-700 rounded-lg flex items-center justify-center';
+            let classes = 'rune w-12 h-12 md:w-14 md:h-14 bg-gray-700 rounded-lg flex items-center justify-center';
+            if(isInteractive) {
+                // Menambahkan margin untuk browser lama yang tidak mendukung 'gap'
+                classes += ' m-1 md:m-2';
+            }
+            runeEl.className = classes;
             runeEl.innerHTML = `<svg viewBox="0 0 24 24" width="28" height="28" style="color: ${rune.color};">${rune.svg}</svg>`;
             if (isInteractive) runeEl.onclick = () => handleRuneSelection(rune);
             return runeEl;
@@ -237,7 +249,7 @@
                     currentGuessArea.appendChild(createRuneElement(currentGuess[i]));
                 } else {
                     const slot = document.createElement('div');
-                    slot.className = 'guess-slot w-12 h-12 md:w-14 md:h-14 rounded-lg';
+                    slot.className = 'guess-slot w-12 h-12 md:w-14 md:h-14';
                     currentGuessArea.appendChild(slot);
                 }
             }
@@ -384,7 +396,7 @@
         async function callGemini(prompt) {
             const chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
             const payload = { contents: chatHistory };
-            const apiKey = ""; 
+            const apiKey = "AIzaSyA0q2n614B7liPOnAyKEQmanjLd7H_lV9Q"; 
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
             const response = await fetch(apiUrl, {
                 method: 'POST',
